@@ -1,0 +1,67 @@
+---
+title: "BugsigDB stat"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## BugsigDB stat- Signature overlaps
+
+Compare signatures changed in abundance from all diseased subjects in BugsigDB to existing typical signatures from healthy volunteers from BugsigDB Study 562
+
+## Get typical healthy signatures from Study 562
+
+Using feces sample as an example
+
+```{r healthy}
+library(dplyr)
+library(bugsigdbr)
+library(BugSigDBStats)
+library(ggpubr)
+
+full.dat <- bugsigdbr::importBugSigDB()
+#Stripping empty signatures:
+ind1 <- lengths(full.dat[["MetaPhlAn taxon names"]]) > 0
+ind2 <- lengths(full.dat[["NCBI Taxonomy IDs"]]) > 0
+dat <- full.dat[ind1 & ind2,]
+
+bugs<- (dat) %>%
+  filter (Study=='Study 562') %>%
+  filter (`Body site` == "feces") %>%
+  filter (grepl("genus",Description))
+healthysig <- bugsigdbr::getSignatures(bugs)  
+head(healthysig)
+```
+
+## Get disease signature
+
+using signatures increased in abundance in feces as an example
+
+```{r disease}
+bugdisease<-  dat %>%
+  filter (`Host species` == 'Homo sapiens') %>%
+  filter (`Body site` == 'feces') %>%
+  filter (`Abundance in Group 1`=='increased') 
+#get genus level sig change in abundance only
+diseasesig <- bugsigdbr::getSignatures(bugdisease, tax.level='genus')
+head(diseasesig)
+```
+
+## Calculate pairwise overlaps
+```{r overlap}
+library(purrr)
+list2 <- c(healthysig, diseasesig)
+paircomp <- calcPairwiseOverlaps(list2)
+head(paircomp)
+
+paircheck <- paircomp %>%
+  filter(stringr::str_detect(name1, '_NA:feces-from-healthy-adult_vs_none---50%-prevalence-threshold')) %>%
+  mutate(name2_1=stringr::str_replace(name2, "bsdb:", "")) %>%
+  mutate(name2_2=(stringr::str_split(name2_1,"/"))) %>%
+  mutate(study_id= purrr::map_chr(name2_2, 1),
+          experiment_id= purrr::map_chr(name2_2, 2),
+          signiture_id= purrr::map_chr(stringr::str_split(purrr::map_chr(name2_2, 3),'_'),1)
+        ) 
+```
