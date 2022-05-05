@@ -5,4 +5,5 @@ Run Typicalsig file to generate 4 typical healthy signature and prevelance csv f
 3. matrix_genus_child.csv
 4. matrix_species_child.csv
 files are uploaded to Zenodo: https://doi.org/10.5281/zenodo.6342450
-Run BugsidDBstats for example analysis applying typical healthy signatures to epidemiologocal analysis 
+
+Run BugSigDBStats for example analysis applying typical healthy signatures to epidemiologocal analysis 
