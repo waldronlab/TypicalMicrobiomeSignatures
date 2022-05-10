@@ -1,4 +1,4 @@
-ibrary(curatedMetagenomicData)
+library(curatedMetagenomicData)
 library(dplyr)
 library(mia)
 healthy <- sampleMetadata %>%

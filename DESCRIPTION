@@ -1,0 +1,28 @@
+Package: TypicalMicrobiomeSignatures
+Version: 0.99.0 
+Title: TypicalMicrobiomeSignatures 
+Authors@R: c(
+    person(given = "Haoyan",
+           family = "Zhong",
+           role = c("aut", "cre"))
+Description:
+    Typical microbiome signatures identification and applications in
+    epidemiological analysis. 
+URL: https://github.com/waldronlab/TypicalMicrobiomeSignatures
+BugReports: https://github.com/waldronlab/TypicalMicrobiomeSignatures/issues
+Depends: R (>= 4.1)
+Depends:
+    BugSigDBStats,
+    bugsigdbr,
+    curatedMetagenomicData,
+    dplyr,
+    ggpubr,
+    mia
+Imports:
+    knitr
+Suggests:
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Encoding: UTF-8
+RoxygenNote: 7.1.2
