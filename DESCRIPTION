@@ -13,7 +13,7 @@ BugReports: https://github.com/waldronlab/TypicalMicrobiomeSignatures/issues
 Depends: R (>= 4.1)
 Depends:
     BugSigDBStats,
-    bugsigdbr
+    bugsigdbr,
     curatedMetagenomicData,
     dplyr,
     ggpubr,
