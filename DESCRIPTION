@@ -16,7 +16,7 @@ Depends:
     bugsigdbr
     curatedMetagenomicData,
     dplyr,
-    ggpubr,j
+    ggpubr,
     mia
 Imports:
     knitr
