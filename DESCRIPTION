@@ -5,6 +5,7 @@ Authors@R: c(
     person(given = "Haoyan",
            family = "Zhong",
            role = c("aut", "cre"))
+)
 Description:
     Typical microbiome signatures identification and applications in
     epidemiological analysis. 
