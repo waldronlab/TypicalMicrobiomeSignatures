@@ -4,7 +4,7 @@ Title: TypicalMicrobiomeSignatures
 Authors@R: c(
     person(given = "Haoyan",
            family = "Zhong",
-           role = c("aut", "cre")
+           role = c("aut", "cre"),
            email = "65034107+haoyanzh@users.noreply.github.com"))
 Description:
     Typical microbiome signatures identification and applications in
