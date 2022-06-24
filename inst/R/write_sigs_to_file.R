@@ -13,37 +13,37 @@ child <- healthy %>%
 #adult
 ##skin
 skinlist <-
-    calcPrevalence(adult, bodysite = "skin", prevalencecutoff = 0.000001)
+    calcPrevalence(filter(adult, body_site == "skin"), prevalencecutoff = 0.000001)
 skin_genus <- data.frame(skinlist[2])
 skin_species <- data.frame(skinlist[1])
 
 ##vagina
 vaginalist <-
-    calcPrevalence(adult, bodysite = "vagina", prevalencecutoff = 0.000001)
+    calcPrevalence(filter(adult, body_site == "vagina"), prevalencecutoff = 0.000001)
 vagina_genus <- data.frame(vaginalist[2])
 vagina_species <- data.frame(vaginalist[1])
 
 ##oralcavity
 oralcavitylist <-
-    calcPrevalence(adult, bodysite = "oralcavity", prevalencecutoff = 0.000001)
+    calcPrevalence(filter(adult, body_site == "oralcavity"), prevalencecutoff = 0.000001)
 oralcavity_genus <- data.frame(oralcavitylist[2])
 oralcavity_species <- data.frame(oralcavitylist[1])
 
 ##nasalcavity
 nasalcavitylist <-
-    calcPrevalence(adult, bodysite = "nasalcavity", prevalencecutoff = 0.000001)
+    calcPrevalence(filter(adult, body_site == "nasalcavity"), prevalencecutoff = 0.000001)
 nasalcavity_genus <- data.frame(nasalcavitylist[2])
 nasalcavity_species <- data.frame(nasalcavitylist[1])
 
 ##stool
 stoollist <-
-    calcPrevalence(adult, bodysite = "stool", prevalencecutoff = 0.000001)
+    calcPrevalence(filter(adult, body_site == "stool"), prevalencecutoff = 0.000001)
 stool_genus <- data.frame(stoollist[2])
 stool_species <- data.frame(stoollist[1])
 
 ##milk
 milklist <-
-    calcPrevalence(adult, bodysite = "milk", prevalencecutoff = 0.000001)
+    calcPrevalence(filter(adult, body_site == "milk"), prevalencecutoff = 0.000001)
 milk_genus <- data.frame(milklist[2])
 milk_species <- data.frame(milklist[1])
 
