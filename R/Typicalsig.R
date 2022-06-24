@@ -65,5 +65,7 @@ calcPrevalence <-
         df_output <- data.frame(df_subg1, df_subg2) %>%
             select(-c("df_subg1")) %>%
             arrange(desc(value))
+        df_output$NCBI <- rownames(df_output)
+    
         return(df_output)
     }
