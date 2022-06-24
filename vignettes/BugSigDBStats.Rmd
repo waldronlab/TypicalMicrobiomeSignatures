@@ -1,10 +1,17 @@
 ---
-title: "BugsigDB stat"
-output: html_document
+title: "BugSigDBStats"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BugSigDBStats}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
 ## BugsigDB stat- Signature overlaps
@@ -15,12 +22,17 @@ Compare signatures changed in abundance from all diseased subjects in BugsigDB t
 
 Using feces sample as an example
 
-```{r healthy}
-library(dplyr)
-library(bugsigdbr)
-library(BugSigDBStats)
-library(ggpubr)
+```{r setup}
+suppressPackageStartupMessages({
+    library(TypicalMicrobiomeSignatures)
+    library(dplyr)
+    library(bugsigdbr)
+    library(BugSigDBStats)
+    library(ggpubr)
+})
+```
 
+```{r healthy}
 full.dat <- bugsigdbr::importBugSigDB()
 #Stripping empty signatures:
 ind1 <- lengths(full.dat[["MetaPhlAn taxon names"]]) > 0
@@ -37,7 +49,7 @@ head(healthysig)
 
 ## Get disease signature
 
-using signatures increased in abundance in feces as an example
+Using signatures increased in abundance in feces as an example.
 
 ```{r disease}
 bugdisease<-  dat %>%
@@ -50,6 +62,7 @@ head(diseasesig)
 ```
 
 ## Calculate pairwise overlaps
+
 ```{r overlap}
 library(purrr)
 list2 <- c(healthysig, diseasesig)

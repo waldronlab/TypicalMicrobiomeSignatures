@@ -1,5 +1,5 @@
 Package: TypicalMicrobiomeSignatures
-Version: 0.99.0 
+Version: 0.99.0
 Title: TypicalMicrobiomeSignatures 
 Authors@R: c(
     person(given = "Haoyan",
@@ -11,8 +11,8 @@ Description:
     epidemiological analysis. 
 URL: https://github.com/waldronlab/TypicalMicrobiomeSignatures
 BugReports: https://github.com/waldronlab/TypicalMicrobiomeSignatures/issues
-Depends: R (>= 4.1)
 Depends:
+    R (>= 4.1)
     BugSigDBStats,
     bugsigdbr,
     curatedMetagenomicData,
@@ -24,6 +24,8 @@ Imports:
 Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
+Remotes:
+    waldronlab/BugSigDBStats
 VignetteBuilder: knitr
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
