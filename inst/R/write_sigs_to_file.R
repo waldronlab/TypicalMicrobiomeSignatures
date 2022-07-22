@@ -1,5 +1,6 @@
 library(curatedMetagenomicData)
 library(dplyr)
+library(TypicalMicrobiomeSignatures)
 
 healthy <- sampleMetadata %>%
     filter(disease == 'healthy') %>%
