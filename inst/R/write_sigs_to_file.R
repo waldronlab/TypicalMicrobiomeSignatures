@@ -1,4 +1,5 @@
 library(curatedMetagenomicData)
+library(dplyr)
 
 healthy <- sampleMetadata %>%
     filter(disease == 'healthy') %>%
