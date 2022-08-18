@@ -311,21 +311,6 @@ grid.arrange(p2, p1, nrow = 1)
 m<-glm(decrease ~ value, data=tbl3, weights = Freq, family = binomial("logit"))
 summary(m)
 
-#method 2- 
-tbld<-tbl3 %>%
-  filter (decrease=="Decreased") %>%
-  mutate (value100=100*value) %>%
-  mutate (value10=10*value)
-tbli<-tbl3 %>%
-  filter (decrease=="Increased")
-tbl4<-merge(x = tbld[,c("NCBI","value","value10","value100","Freq")], y = tbli[ , c("NCBI", "Freq")], by = "NCBI", all.x=TRUE)
-m1 <- glm(
-  cbind(Freq.x, Freq.y) ~ value10,
-  data = tbl4,
-  family = binomial("logit")
-)
-summary(m1)
-# weight function is the same as 2 count columns
 exp(0.012224)
 exp(0.12224)
 exp(0.12224-1.96*0.013)
