@@ -7,6 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+---
+title: "BugsigDB stat"
+output: html_document
+---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -86,7 +91,7 @@ u70<-unlist(healthysig70)
 u70[22]='1905344'
 
 ```
-## Get disease signature
+## Get signature changed in abundance from BugSigDB
 
 ```{r increased_disease_genus}
 bugdisease_increased <-  dat %>%
@@ -193,7 +198,7 @@ healthy50=as.integer(u50)
 healthy70=as.integer(u70)
 ```
 
-# Method 2 - unit is each Bugsig DB reported genus (changed in abundance)
+## report odds (decresed/incresed) of overlapping with prevalent genera in healthy population
 ```{r overlap pct 30 - do not take out duplicate BugsigDB genera, unit of analysis is each reported changed genus}
 defull<-decreasedist %>%
   mutate(healthy30 = ifelse(NCBI_decreased %in% healthy30, 1, 0)) %>%
@@ -273,53 +278,6 @@ stoollist2 <- tibble::rownames_to_column(stoollist, "NCBI")
 write.csv(stoollist2,"/mnt/STORE1/bighome/haoyanzh/DE/healthystool_genus.csv", row.names = FALSE)
 ```
 
-```{r interection}
-fullf1<-fullf %>%
-  mutate(x=1)
-
-tbl <- with(fullf1, table(NCBI, x))
-tbld <- with(fullf1, table(NCBI, decrease))
-
-tbl1<- as.data.frame(tbl)
-names(tbl1)[3] <- 'total'
-
-tbld1<-as.data.frame(tbld) 
-tblm<-tbl1 %>%
-  left_join(tbld1, by="NCBI")
-
-tblm$NCBI <- as.factor(tblm$NCBI) 
-
-healthyp <- read_csv("/mnt/STORE1/bighome/haoyanzh/DE/healthystool_genus.csv",show_col_types = FALSE) 
-healthyp$NCBI <- as.factor(healthyp$NCBI)   
-tbl2<- tblm %>%
-  left_join(healthyp, by="NCBI")
-levels(tbl2$decrease) <- c("Increased", "Decreased")
-tbl2[is.na(tbl2)] <- 0 
-
-l<-lm(Freq ~ value * decrease, data=tbl2)
-summary(l)
-
-d<-tbl2 %>% filter (decrease=='Decreased') 
-i<-tbl2 %>% filter (decrease=='Increased') 
-
-p1<-ggplot(data=d, aes(x = value*100, y = Freq)) +
-  geom_point(size=3, shape=6) +
-  xlab("Prevalence of genus among healthy individuals") +
-  ylab("# decreased genus reported in BugSigDB") + 
-  geom_smooth(method = "lm", color='black') + 
-  ylim(0, 87)
-
-p2<- ggplot(data=i, aes(x = value*100, y = Freq)) +
-  geom_point(size=3, shape=17) +
-  xlab("Prevalence of genus among healthy individuals") +
-  ylab("# increased genus reported in BugSigDB") + 
-  geom_smooth(method = "lm", color='black') + 
-  ylim(0, 87)
-
-library(gridExtra) 
-grid.arrange(p1, p2, nrow = 1)
-```
-
 ```{r corr between #genus reported changed in BugSigDB and prevelance in healthy cmd subjects using healthy genus threshold=50%}
 tbl3<- tbl2 %>%
   filter (value>0.05)
@@ -327,31 +285,49 @@ tbl3<- tbl2 %>%
 l<-lm(Freq ~ value * decrease, data=tbl3)
 summary(l)
 
-ggplot(as.data.frame(tbl3), aes(x = value*100, y = Freq, shape = decrease)) +
-  geom_point(size=3)+
-  scale_shape_manual(values=c(17,6)) +
-  xlab("Prevalence of genus among healthy individuals") +
-  ylab("# signatures genus appear in BugSigDB") + 
-  guides(color = guide_legend(title = "Changed in abundance")) +
-  geom_smooth(method = "lm")
- 
 d<-tbl3 %>% filter (decrease=='Decreased') 
 i<-tbl3 %>% filter (decrease=='Increased') 
 
 p1<-ggplot(data=d, aes(x = value*100, y = Freq)) +
   geom_point(size=3, shape=6) +
-  xlab("Prevalence of genus among healthy individuals") +
-  ylab("# decreased genus reported in BugSigDB") + 
+  xlab("Prevalence of genera among healthy individuals %") +
+  ylab("Count of genera decreased in relative abundance reported in BugSigDB") + 
   geom_smooth(method = "lm", color='black') + 
-  ylim(0, 87)
+  ylim(0, 88) 
 
 p2<- ggplot(data=i, aes(x = value*100, y = Freq)) +
   geom_point(size=3, shape=17) +
-  xlab("Prevalence of genus among healthy individuals") +
-  ylab("# increased genus reported in BugSigDB") + 
+  xlab("Prevalence of genera among healthy individuals %") +
+  ylab("Count of genera increased in relative abundance reported in BugSigDB") + 
   geom_smooth(method = "lm", color='black') + 
-  ylim(0, 87)
+  ylim(0, 88) 
 
 library(gridExtra) 
-grid.arrange(p1, p2, nrow = 1)
+grid.arrange(p2, p1, nrow = 1)
+```
+
+```{r calculate odds decrease(0/1) ~prevelance}
+#method 1-
+m<-glm(decrease ~ value, data=tbl3, weights = Freq, family = binomial("logit"))
+summary(m)
+
+#method 2- 
+tbld<-tbl3 %>%
+  filter (decrease=="Decreased") %>%
+  mutate (value100=100*value) %>%
+  mutate (value10=10*value)
+tbli<-tbl3 %>%
+  filter (decrease=="Increased")
+tbl4<-merge(x = tbld[,c("NCBI","value","value10","value100","Freq")], y = tbli[ , c("NCBI", "Freq")], by = "NCBI", all.x=TRUE)
+m1 <- glm(
+  cbind(Freq.x, Freq.y) ~ value10,
+  data = tbl4,
+  family = binomial("logit")
+)
+summary(m1)
+# weight function is the same as 2 count columns
+exp(0.012224)
+exp(0.12224)
+exp(0.12224-1.96*0.013)
+exp(0.12224+1.96*0.013)
 ```
