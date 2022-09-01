@@ -3,8 +3,10 @@ library(dplyr)
 library(TypicalMicrobiomeSignatures)
 
 healthy <- sampleMetadata %>%
-    filter(disease == 'healthy') %>%
-    select(where( ~ !all(is.na(.x))))
+  filter(disease == 'healthy') %>%
+  select(where( ~ !all(is.na(.x)))) %>%
+  mutate(body_site = case_when(body_subsite == 'anterior_nares' ~ 'skin',
+                                  TRUE ~ body_site ))
 
 adult <- healthy %>%
     filter(age_category %in% (c("adult", "senior")))
@@ -13,7 +15,7 @@ child <- healthy %>%
 
 # adult
 
-adultbodysites <- c("skin", "vagina", "oralcavity", "nasalcavity", "stool")
+adultbodysites <- c("skin", "vagina", "oralcavity", "stool")
 
 adultgenus <- list()
 adultspecies <- list()
@@ -54,7 +56,7 @@ write.csv(ordered_matrix_species, "matrix_species_adult.csv", row.names = FALSE)
 
 # child
 
-childbodysites <- c("oralcavity", "nasalcavity", "stool")
+childbodysites <- c("oralcavity", "skin", "stool")
 
 childgenus <- list()
 childspecies <- list()
