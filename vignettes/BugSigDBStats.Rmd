@@ -4,7 +4,7 @@ author: "Haoyan Zhong"
 date: "`r format(Sys.Date(), '%b %d, %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Application of typical human microbiomes signatures: overlap with signatures of different diseases and exposures in the published literature.}
+  %\VignetteIndexEntry{Applications}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,11 +15,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Typical stool-associated signature analysis
 
-We used control samples from the curatedMetagenomicData database to identify “health-associated, typical” genera associated with adults (ages 19 - 107) across multiple body sites, and provide these lists of signatures and prevalences in machine-readable formats for epidemiological analyses. This analysis aims to demonstrate the application of these signatures in high-throughput analysis- we analyze the typical stool-associated signature in the context of 3,790 stool-associated taxa of various exposures and health outcomes from 329 studies found in BugSigDB
+We used control samples from the curatedMetagenomicData database to identify “health-associated, typical” genera associated with adults (ages 19 - 107) across multiple body sites, and provide these lists of signatures and prevalences in machine-readable formats for epidemiological analyses. This analysis aims to demonstrate the application of these signatures in high-throughput analysis- we analyze the typical stool-associated signature in the context of 3,790 stool-associated taxa of various exposures and health outcomes from 329 studies found in BugSigDB.
 
 ## Data preparation
 
-```{r library}
+```{r library, message = FALSE}
 library(dplyr)
 library(bugsigdbr)
 library(BugSigDBStats)
@@ -38,31 +38,37 @@ dat <- full.dat[ind1 & ind2,] %>%
   filter (`Body site` == 'feces')
 ```
 
-### find number of unique human stool sample studies in BugSigigDB
+Find the number of unique studies of human stool samples in BugSigigDB:
+
 ```{r BugsigDB1}
 length(unique(dat$Study))
 ```
 
-### Get genus level information from human stool sample studies
+Get genus level information from human stool sample studies:
 
-```{r BugSigDB genera}
+```{r BugSigDBgenera}
 allbug <- bugsigdbr::getSignatures(dat, tax.level = 'genus')
 NCBI <- array(unlist(allbug))
 ```
-### find total number of total genera that were reported changed in abundance in BugSigDB human stool sample studies
-```{r BugSigDB genera1}
+
+Find the total number of total genera that were reported changed in abundance in BugSigDB human stool sample studies:
+
+```{r BugSigDBgenera1}
 allbuglong <- data.frame(NCBI) 
 length(allbuglong$NCBI)
 ```
-### find total number of unique genera that were reported changed in abundance in BugSigDBhuman human stool sample studies
-```{r BugSigDB genera2}
+
+Find the total number of unique genera that were reported changed in abundance in BugSigDBhuman human stool sample studies:
+
+```{r BugSigDBgenera2}
 allbuglist <- data.frame(NCBI) %>%
   distinct(NCBI)
 length(unique(allbuglist$NCBI))
 ```
-## Divide signature changed in abundance into 2 groups: increased and decreased
 
-### Get increased signatures
+## Divide signatures into 2 groups: increased and decreased relative abundance in study group
+
+### Signatures of increased relative abundance at the genus level
 
 ```{r increased_disease_genus}
 bugdisease_increased <-  dat %>%
@@ -70,24 +76,30 @@ bugdisease_increased <-  dat %>%
 diseasesig_increased <-
   bugsigdbr::getSignatures(bugdisease_increased, tax.level = 'genus')
 ```
-#### Find the number of studies that reported signature increased in relative abundance
+
+The number of studies that reported signatures of increased relative abundance:
+
 ```{r increased_disease_genus0}
 length(unique(bugdisease_increased$Study))
 ```
 
-#### Find the number of genus that reported signature increased in relative abundance
+The number of genera reported in signatures of increased relative abundance (counting duplicates):
+
 ```{r increased_disease_genus1}
 NCBI_increased <- array(unlist(diseasesig_increased))
 increasedist <- data.frame(NCBI_increased)
 summary(increasedist)
 ```
 
-#### Find the number of unique genus that reported signature increased in relative abundance
+Find the number of unique genus that reported signature increased in relative abundance:
+
 ```{r increased_disease_genus2}
 distinct_i <- unique(increasedist)
 summary(distinct_i)
 ```
-### Get decreased signatures
+
+### Signatures of _decreased_ relative abundance at the genus level
+
 ```{r decreased_disease_genus}
 bugdisease_decreased <-  dat %>%
   filter (`Abundance in Group 1` == "decreased")
@@ -95,29 +107,32 @@ diseasesig_decreased <-
   bugsigdbr::getSignatures(bugdisease_decreased, tax.level = 'genus')
 ```
 
-#### Find the number of studies that reported signature decreased in relative abundance
+Find the number of studies that reported signature decreased in relative abundance (counting duplicates):
+
 ```{r decreased_disease_genus0}
 length(unique(bugdisease_decreased$Study))
 ```
 
-#### Find the number of genus that reported signature increased in relative abundance
+Find the number of genus that reported signature increased in relative abundance:
+
 ```{r decreased_disease_genus1}
 NCBI_decreased <- array(unlist(diseasesig_decreased))
 decreasedist <- data.frame(NCBI_decreased)
 summary(decreasedist)
 ```
-#### Finid the number of unique genus that reported signature decreased in relative abundance
+Find the number of unique genus that reported signature decreased in relative abundance:
+
 ```{r decreased_disease_genus2}
 distinct_d <- unique(decreasedist)
 summary(distinct_d)
 ```
 
-## Get typical healthy signatures from BugSigDB
+Get typical healthy signatures from BugSigDB:
 
 “health-associated, typical” genera within adults identified curatedMetagenomicData database were uploaded to BugSigDB Study 562. 
 “health-associated, typical” genera was defined at several different prevalence thresholds- 30%, 50%, 70%
 
-### Get typical signature at prevalence threshold= 30%
+### Get typical signatures at a threshold of 30%
 
 ```{r healthy30}
 bugs30 <- (dat) %>%
@@ -129,7 +144,7 @@ healthysig30 <- bugsigdbr::getSignatures(bugs30)
 head(healthysig30)
 ```
 
-### Get signature at prevalence threshold= 50%
+### Get signature at 50% prevalence threshold
 
 ```{r healthy50}
 bugs50 <- (dat) %>%
@@ -166,23 +181,26 @@ u70[22] = '1905344'
 Compare the odds of overlapping with prevalent genera in healthy population using genera reported as decreased vs increased in BugSigDB study group, using thresholds of 30%, 50%, and 70% respectively
 
 
-### Get all genus appeared in curatedMetagenomicData
-```{r all cmg stool NCBI}
+Get all genera appearing in curatedMetagenomicData:
+
+```{r, message = FALSE}
 library(curatedMetagenomicData)
 library(dplyr)
 library(mia)
 library(TypicalMicrobiomeSignatures)
+```
 
+```{r all cmg stool NCBI}
 adult <- sampleMetadata %>%
   filter(age_category %in% (c("adult", "senior"))) %>%
   filter(body_site == "stool")
 adult <- adult[, colSums(is.na(adult)) < nrow(adult)]
 
 cmg <- calcPrevalence(adult, rank = "genus")
-
 ```
 
-### Combine all genus appeared in curatedMetagenomicData and BugSigDB
+Now combine all genus appeared in curatedMetagenomicData and BugSigDB:
+
 ```{r universe}
 full <- cmg %>%
   select (c("NCBI")) %>%
@@ -191,9 +209,9 @@ full <- cmg %>%
 length(full$NCBI)
 ```
 
-### Report odds (decresed/incresed) of overlapping with prevalent genera in healthy population
+Report odds (decresed/incresed) of overlapping with prevalent genera in healthy population:
 
-```{r enrichment}
+```{r enrichment} ##split into multiple chunks and explain
 DE_d = as.integer(distinct_d$NCBI_decreased)
 DE_i = as.integer(distinct_i$NCBI_increased)
 
@@ -230,17 +248,13 @@ oddsratio(m50)
 oddsratio(m70)
 ```
 
-## Analysis 2:  
+## Analysis 2
 
-assess the association between the change in relative abundance in study groups in literature (decreased or increased) and the prevalence of typical genera found in healthy volunteers’ stool samples.
+Assess the association between the change in relative abundance in study groups in literature (decreased or increased) and the prevalence of typical genera found in healthy volunteers’ stool samples.
 
-### Get prevalence of each typical health-associated genera from curatedMetagenomicData healthy volunteers’ stool samples.
+First, get the prevalence of each typical health-associated genera from curatedMetagenomicData healthy volunteers’ stool samples.
 
 ```{r all healthy stool NCBI}
-library(curatedMetagenomicData)
-library(dplyr)
-library(mia)
-
 healthystool <- sampleMetadata %>%
   filter(age_category %in% (c("adult", "senior"))) %>%
   filter (disease=="healthy") %>% 
@@ -249,9 +263,10 @@ healthystool <- sampleMetadata %>%
 healthystool <- healthystool[,colSums(is.na(healthystool))<nrow(healthystool)]
 healthyp<-calcPrevalence(adult, rank = "genus")
 ```
-### Combine typical health-associated genera from curatedMetagenomicData healthy volunteers’ stool samples with signature from BugSigDB human tool sample that changed in abundance. Calculate the frequency (overall, increased, decreased) of each genera reported in BugSigDB studies
 
-```{r interection}
+Now combine typical health-associated genera from curatedMetagenomicData healthy volunteers’ stool samples with signature from BugSigDB human tool sample that changed in abundance. Calculate the frequency (overall, increased, decreased) of each genera reported in BugSigDB studies.
+
+```{r interection}  # split into more chunks and explain
 fullf1 <- fullf %>%
   mutate(x = 1)
 
@@ -278,15 +293,17 @@ levels(tbl2$decrease) <- c("Increased", "Decreased")
 tbl2[is.na(tbl2)] <- 0 
 ```
 
-### Including only genera with prevalence of at least 5% in curatedMetagenomicData
+Include only genera with prevalence of at least 5% in curatedMetagenomicData:
+
 ```{r interection1}
 tbl3<- tbl2 %>%
   filter (value>0.05)
 ```
 
-### linear regression
+### Linear regression
 
-frequency of genera mentioned in BugSigDB~ prevelance of genera in healthy control samples * increased/decreased in BugSigDB
+Calculate the frequency of genera mentioned in BugSigDB~ prevelance of genera in healthy control samples * increased/decreased in BugSigDB:
+
 ```{r interection2}
 l<-lm(Freq ~ value * decrease, data=tbl3)
 summary(l)
@@ -317,7 +334,7 @@ library(gridExtra)
 grid.arrange(p2, p1, nrow = 1)
 ```
 
-### logistic regression model
+### Logistic regression model
 
 A logistic regression model was used to assess the association between the change in relative abundance in study groups in literature (decreased or increased) with the prevalence of typical genera found in healthy volunteers’ stool samples. Odds ratio (decreased/increased) and 95% CIs are reported. 
 
