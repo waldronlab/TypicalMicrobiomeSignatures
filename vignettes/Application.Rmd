@@ -14,15 +14,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Typical stool-associated signature analysis
-
-We defined “health-associated, typical” genera associated with adults, and provide these lists of signatures and prevalence in machine-readable formats for epidemiological analyses. 
+We used control samples from the curatedMetagenomicData database to identify “health-associated, typical” genera associated with adults (ages 19 - 107) across multiple body sites, and provide these lists of signatures and prevalence in machine-readable formats for epidemiological analyses. 
 This analysis aims to demonstrate the application of these signatures in high-throughput analysis- we analyze the typical stool-associated signature in the context of 3,790 stool-associated taxa of various exposures and health outcomes from 329 studies found in BugSigDB.
 
 ## Data preparation
 
 In order to perform the analysis, we need to pull data from 2 sources:
-1. Stool-associated genus of various exposures and reported to change in abundance BugSigDB
-2. health-associated, typical genus associated with adults from curatedMetagenomicData
+1. Stool-associated signatures of differentially abundant genera across various health outcomes and exposures, accessed from BugSigDB.
+2. typical genera identified from adult control samples in curatedMetagenomicData
 
 ```{r library, message = FALSE}
 library(dplyr)
@@ -53,22 +52,18 @@ Get genus level information from human stool sample studies:
 
 ```{r}
 allbug <- bugsigdbr::getSignatures(dat, tax.level = 'genus')
-NCBI <- array(unlist(allbug))
 ```
 
 Find the total number of total genera that were reported changed in abundance in BugSigDB human stool sample studies:
 
 ```{r}
-allbuglong <- data.frame(NCBI) 
-length(allbuglong$NCBI)
+length(unlist(allbug))
 ```
 
 Find the total number of unique genera that were reported changed in abundance in BugSigDBhuman human stool sample studies:
 
 ```{r}
-allbuglist <- data.frame(NCBI) %>%
-  distinct(NCBI)
-length(unique(allbuglist$NCBI))
+length(unique(unlist(allbug)))
 ```
 
 ## Divide signatures into 2 groups: increased and decreased relative abundance in study group
@@ -76,61 +71,45 @@ length(unique(allbuglist$NCBI))
 ### Signatures of increased relative abundance at the genus level
 
 ```{r}
-bugdisease_increased <-  dat %>%
+bugstudy_increased <-  dat %>%
   filter (`Abundance in Group 1` == "increased")
-diseasesig_increased <-
-  bugsigdbr::getSignatures(bugdisease_increased, tax.level = 'genus')
+sig_increased <-
+  bugsigdbr::getSignatures(bugstudy_increased, tax.level = 'genus')
 ```
 
 The number of studies that reported signatures of increased relative abundance:
 
 ```{r}
-length(unique(bugdisease_increased$Study))
+length(unique(bugstudy_increased$Study))
 ```
 
 The number of genera reported in signatures of increased relative abundance (counting duplicates):
 
 ```{r}
-NCBI_increased <- array(unlist(diseasesig_increased))
-increasedist <- data.frame(NCBI_increased)
-summary(increasedist)
-```
-
-Find the number of unique genus that reported signature increased in relative abundance:
-
-```{r}
-distinct_i <- unique(increasedist)
-summary(distinct_i)
+length(unlist(sig_increased))
 ```
 
 ### Signatures of _decreased_ relative abundance at the genus level
 
 ```{r}
-bugdisease_decreased <-  dat %>%
+bugstudy_decreased <-  dat %>%
   filter (`Abundance in Group 1` == "decreased")
-diseasesig_decreased <-
-  bugsigdbr::getSignatures(bugdisease_decreased, tax.level = 'genus')
+sig_decreased <-
+  bugsigdbr::getSignatures(bugstudy_decreased, tax.level = 'genus')
 ```
 
 Find the number of studies that reported signature decreased in relative abundance (counting duplicates):
 
 ```{r}
-length(unique(bugdisease_decreased$Study))
+length(unique(bugstudy_decreased$Study))
 ```
 
-Find the number of genus that reported signature increased in relative abundance:
-
-```{r}
-NCBI_decreased <- array(unlist(diseasesig_decreased))
-decreasedist <- data.frame(NCBI_decreased)
-summary(decreasedist)
-```
-Find the number of unique genus that reported signature decreased in relative abundance:
+Find the number of genera that reported signature decreased in relative abundance:
 
 ```{r}
-distinct_d <- unique(decreasedist)
-summary(distinct_d)
+length(unlist(sig_decreased))
 ```
+
 
 Get typical healthy signatures from GitHub:
 
@@ -147,16 +126,14 @@ thresh <- read.csv("https://raw.githubusercontent.com/waldronlab/TypicalMicrobio
 ```{r}
 bugs30 <- thresh %>%
   filter (stool_genus_prevalence >=0.3) %>%
-  select("NCBI") %>%
-  unlist()
+  pull("NCBI") 
 ```
 
 ### Get signature at 50% prevalence threshold
 ```{r}
 bugs50 <- thresh %>%
   filter (stool_genus_prevalence >=0.5) %>%
-  select("NCBI") %>%
-  unlist()
+  pull("NCBI") 
 ```
 
 ### Get typical signature at prevalence threshold= 70%
@@ -164,8 +141,7 @@ bugs50 <- thresh %>%
 ```{r}
 bugs70 <- thresh %>%
   filter (stool_genus_prevalence >=0.7) %>%
-  select("NCBI") %>%
-  unlist()
+  pull("NCBI") 
 ```
 
 
@@ -178,7 +154,6 @@ Get all genera appearing in curatedMetagenomicData:
 
 ```{r, message = FALSE}
 library(curatedMetagenomicData)
-library(dplyr)
 library(mia)
 library(TypicalMicrobiomeSignatures)
 ```
@@ -186,7 +161,9 @@ library(TypicalMicrobiomeSignatures)
 ```{r, message = FALSE}
 adult <- sampleMetadata %>%
   filter(age_category %in% (c("adult", "senior"))) %>%
-  filter(body_site == "stool")
+  filter(body_site == "stool") %>%
+  filter(study_name != "FengQ_2015") %>%
+  filter(study_name != "YuJ_2015")
 adult <- adult[, colSums(is.na(adult)) < nrow(adult)]
 
 cmg <- calcPrevalence(adult, rank = "genus")
@@ -195,8 +172,9 @@ cmg <- calcPrevalence(adult, rank = "genus")
 Now combine all genus appeared in curatedMetagenomicData and BugSigDB:
 
 ```{r}
+allbuglist <- array(unlist(allbug))
 full <- cmg %>%
-  select (c("NCBI")) %>%
+  select ("NCBI") %>%
   rbind(allbuglist) %>%
   distinct(NCBI)
 length(full$NCBI)
@@ -205,29 +183,25 @@ length(full$NCBI)
 Report odds (decresed/incresed) of overlapping with prevalent genera in healthy population:
 
 ```{r} 
-healthy30 = unlist(bugs30)
-healthy50 = unlist(bugs50)
-healthy70 = unlist(bugs70)
-
-defull <- decreasedist %>%
-  mutate(healthy30 = ifelse(NCBI_decreased %in% healthy30, 1, 0)) %>%
-  mutate(healthy50 = ifelse(NCBI_decreased %in% healthy50, 1, 0)) %>%
-  mutate(healthy70 = ifelse(NCBI_decreased %in% healthy70, 1, 0)) %>%
+defull <- data.frame(unlist(sig_decreased)) %>%
+  mutate(bugs30 = ifelse(unlist.sig_decreased. %in% bugs30, 1, 0)) %>%
+  mutate(bugs50 = ifelse(unlist.sig_decreased. %in% bugs50, 1, 0)) %>%
+  mutate(healthy70 = ifelse(unlist.sig_decreased. %in% bugs70, 1, 0)) %>%
   mutate(decrease = 1) %>%
-  dplyr::rename(NCBI= 'NCBI_decreased')
+  dplyr::rename(NCBI= 'unlist.sig_decreased.')
 
-infull <- increasedist %>%
-  mutate(healthy30 = ifelse(NCBI_increased %in% healthy30, 1, 0)) %>%
-  mutate(healthy50 = ifelse(NCBI_increased %in% healthy50, 1, 0)) %>%
-  mutate(healthy70 = ifelse(NCBI_increased %in% healthy70, 1, 0)) %>%
+infull <- data.frame(unlist(sig_increased)) %>%
+  mutate(bugs30 = ifelse(unlist.sig_increased. %in% bugs30, 1, 0)) %>%
+  mutate(bugs50 = ifelse(unlist.sig_increased. %in% bugs50, 1, 0)) %>%
+  mutate(bugs70 = ifelse(unlist.sig_increased. %in% bugs70, 1, 0)) %>%
   mutate(decrease = 0) %>%
-  dplyr::rename(NCBI='NCBI_increased')
+  dplyr::rename(NCBI='unlist.sig_increased.')
 
 fullf <- rbind(defull, infull)
 
-m30 <- table(x = fullf$decrease, y = fullf$healthy30)
-m50 <- table(x = fullf$decrease, y = fullf$healthy50)
-m70 <- table(x = fullf$decrease, y = fullf$healthy70)
+m30 <- table(x = fullf$decrease, y = fullf$bugs30)
+m50 <- table(x = fullf$decrease, y = fullf$bugs50)
+m70 <- table(x = fullf$decrease, y = fullf$bugs70)
 
 library(epitools)
 oddsratio(m30)
@@ -245,7 +219,9 @@ First, get the prevalence of each typical health-associated genera from curatedM
 healthystool <- sampleMetadata %>%
   filter(age_category %in% (c("adult", "senior"))) %>%
   filter (disease=="healthy") %>% 
-  filter(body_site == "stool")
+  filter(body_site == "stool") %>%
+  filter(study_name != "FengQ_2015") %>%
+  filter(study_name != "YuJ_2015")
 
 healthystool <- healthystool[,colSums(is.na(healthystool))<nrow(healthystool)]
 healthyp<-calcPrevalence(adult, rank = "genus")
