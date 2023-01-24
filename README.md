@@ -35,5 +35,5 @@ The devel version of the files are available at
 
 ## Example Analysis
 
-Run BugSigDBStats for an example analysis applying typical healthy signatures
-to an epidemiological analysis.
+Run (BugSigDBStats)[http://waldronlab.io/BugSigDBStats/] for an example
+analysis applying typical healthy signatures to an epidemiological analysis.
