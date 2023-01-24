@@ -4,8 +4,8 @@
 
 Install the following packages:
 
-* Bioconductor package (curatedMetagenomicData)[https://bioconductor.org/packages/release/curatedMetagenomicData]
-* tidyverse package (dplyr)[https://dplyr.tidyverse.org]
+* Bioconductor package [curatedMetagenomicData](https://bioconductor.org/packages/release/curatedMetagenomicData)
+* tidyverse package [dplyr](https://dplyr.tidyverse.org)
 * TypicalMicrobiomeSignatures
 
 Using BiocManager to install:
@@ -31,9 +31,9 @@ Zenodo at
 Prior release versions are available at
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6656514.svg)](https://doi.org/10.5281/zenodo.6656514).
 The devel version of the files are available at
-(TypicalMicrobiomeSignaturesExports)[https://github.com/waldronlab/TypicalMicrobiomeSignaturesExports].
+[TypicalMicrobiomeSignaturesExports](https://github.com/waldronlab/TypicalMicrobiomeSignaturesExports).
 
 ## Example Analysis
 
-Run (BugSigDBStats)[http://waldronlab.io/BugSigDBStats/] for an example
+Run [BugSigDBStats](http://waldronlab.io/BugSigDBStats/) for an example
 analysis applying typical healthy signatures to an epidemiological analysis.
