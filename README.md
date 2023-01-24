@@ -29,7 +29,7 @@ The most recent release versions of the signature and prevalence files are avail
 Zenodo at
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7544550.svg)](https://doi.org/10.5281/zenodo.7544550).
 Prior release versions are available at
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6656514.svg)](https://doi.org/10.5281/zenodo.6656514).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6656514.svg)](https://doi.org/10.5281/zenodo.6656514)
 The devel version of the files are available at
 [TypicalMicrobiomeSignaturesExports](https://github.com/waldronlab/TypicalMicrobiomeSignaturesExports).
 
